@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May 30 10:24:19 2021
 
-@author: Genedy
-"""
 from tkinter import Frame, Button, LEFT ,Entry , Text , Label 
 from tkinter.ttk import Combobox
 import cv2
@@ -33,4 +28,5 @@ class OptionBar(Frame):
     
     def getAngleValue (self):
         return int(self.cb2.get())
+        
     

@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May 23 05:10:04 2021
-
-@author: Genedy
-"""
 import tkinter as tk
 from tkinter import ttk
 from editBar import EditBar
@@ -16,11 +10,11 @@ class Main(tk.Tk):
         tk.Tk.__init__(self)
         self.title("Assignment1-PhotoEditor")
         self.filename = ""
-        self.original_image = None
-        self.processed_image = None
-        self.is_image_selected = False
-        self.is_crop_state = False
-        self.is_transform_state = False 
+        self.originalImage = None
+        self.processedImage = None
+        self.selectedImage = False
+        self.cropState = False
+        self.transformState = False 
         self.optionBar = OptionBar(master = self)
         self.editBar = EditBar(master = self)
         sep = ttk.Separator(master=self, orient=tk.HORIZONTAL)

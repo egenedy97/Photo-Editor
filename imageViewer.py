@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May 23 05:55:48 2021
-
-@author: Genedy
-"""
 
 from tkinter import Frame, Canvas, CENTER, ROUND
 from PIL import Image, ImageTk
@@ -29,25 +23,13 @@ class ImageViewer(Frame):
         self.dot =[]
         self.canvas = Canvas(self, bg="gray", width=1000, height=600)
         self.canvas.place(relx=0.5, rely=0.5, anchor=CENTER)
-        
-   
-# =============================================================================
-
-#     
-#     def removeCoords(self, event=None):
-#         del self.coord[-1]
-#         self.canvas.delete(self.dot[-1])
-#         del self.dot[-1]
-#     
-#     def Transformer(self): 
-# =============================================================================
     
     
     def show_image(self, img=None):
         self.clear_canvas()
 
         if img is None:
-            image = self.master.processed_image.copy()
+            image = self.master.processedImage.copy()
         else:
             image = img
 
@@ -74,18 +56,13 @@ class ImageViewer(Frame):
         self.canvas.config(width=new_width, height=new_height)
         self.canvas.create_image(new_width / 2, new_height / 2, anchor=CENTER, image=self.shown_image)
     
-# =============================================================================
-#     def ActiveTransforming(self): 
-#         self.canvas.bind("<ButtonPress>" , self.insertCoords)
-# =============================================================================
-        
     
     def ActiveCropping(self):
         self.canvas.bind("<ButtonPress>", self.start_crop)
         self.canvas.bind("<B1-Motion>", self.crop)
         self.canvas.bind("<ButtonRelease>", self.end_crop)
 
-        self.master.is_crop_state = True
+        self.master.cropState = True
         
     
     def DeactiveCropping(self):
@@ -93,7 +70,7 @@ class ImageViewer(Frame):
         self.canvas.unbind("<B1-Motion>")
         self.canvas.unbind("<ButtonRelease>")
 
-        self.master.is_crop_state = False
+        self.master.cropState = False
     
     def start_crop(self, event):
         self.crop_start_x = event.x
@@ -135,26 +112,23 @@ class ImageViewer(Frame):
         x = slice(start_x, end_x, 1)
         y = slice(start_y, end_y, 1)
 
-        self.master.processed_image = self.master.processed_image[y, x]
+        self.master.processedImage = self.master.processedImage[y, x]
 
         self.show_image()
 
     def flippingImage(self ,var ):       
-        self.master.processed_image = cv2.flip(self.master.processed_image,var)
+        self.master.processedImage = cv2.flip(self.master.processedImage,var)
         self.show_image()
 
     def RotatingImage(self , val) :
-        self.master.processed_image = imutils.rotate(self.master.processed_image, angle=val)
+        self.master.processedImage = imutils.rotate(self.master.processedImage, angle=val)
         self.show_image() 
     
         
     def EqualizeImage(self):
-#        clahe  =  cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-#        self.master.processed_image = clahe.apply(self.master.processed_image)
+       
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-        self.master.processed_image = clahe.apply(self.master.processed_image)
-#        self.master.processed_image[:,:,:] = cv2.equalizeHist(self.master.processed_image[:,:,:])
-#        self.master.processed_image = cv2.cvtColor(self.master.processed_image, cv2.COLOR_YUV2BGR)
+        self.master.processedImage = clahe.apply(self.master.processedImage)
         self.show_image() 
     
     def ActiveTransform(self) :
@@ -162,8 +136,8 @@ class ImageViewer(Frame):
         self.canvas.bind("<Button 3>",self.removeCoords)
     
     def DeactiveTransform(self):
-        self.canvas.bind("<Button 1>",self.insertCoords)
-        self.canvas.bind("<Button 3>",self.removeCoords)
+        self.canvas.unbind("<Button 1>",self.insertCoords)
+        self.canvas.unbind("<Button 3>",self.removeCoords)
         
     def insertCoords(self ,event):
         self.coord.append([event.x, event.y])
@@ -173,7 +147,7 @@ class ImageViewer(Frame):
             self.Transformer()
             self.canvas.delete("all")
             self.canvas.create_image(0,0,image=self.result,anchor="nw")
-            self.master.processed_image = self.result    
+            self.master.processedImage = self.result    
             
     def removeCoords(self, event=None):
         del self.coord[-1]
@@ -182,10 +156,10 @@ class ImageViewer(Frame):
         
         
     def Transformer(self):
-        cv2.circle(self.master.processed_image , tuple(self.coord[0]), 5, (0, 0, 255), -1)
-        cv2.circle(self.master.processed_image , tuple(self.coord[1]), 5, (0, 0, 255), -1)
-        cv2.circle(self.master.processed_image , tuple(self.coord[2]), 5, (0, 0, 255), -1)
-        cv2.circle(self.master.processed_image , tuple(self.coord[3]), 5, (0, 0, 255), -1)
+        cv2.circle(self.master.processedImage , tuple(self.coord[0]), 5, (0, 0, 255), -1)
+        cv2.circle(self.master.processedImage , tuple(self.coord[1]), 5, (0, 0, 255), -1)
+        cv2.circle(self.master.processedImage , tuple(self.coord[2]), 5, (0, 0, 255), -1)
+        cv2.circle(self.master.processedImage , tuple(self.coord[3]), 5, (0, 0, 255), -1)
         
                 
         widthA = np.sqrt(((self.coord[3][0] - self.coord[2][0]) ** 2) + ((self.coord[3][1] - self.coord[2][1]) ** 2))
@@ -201,7 +175,7 @@ class ImageViewer(Frame):
         pts1 = np.float32(self.coord)    
         pts2 = np.float32([[0, 0], [maxWidth-1, 0], [0, maxHeight-1], [maxWidth-1, maxHeight-1]])
         matrix = cv2.getPerspectiveTransform(pts1, pts2)
-        self.result_cv = cv2.warpPerspective(self.master.processed_image, matrix, (maxWidth,maxHeight))
+        self.result_cv = cv2.warpPerspective(self.master.processedImage, matrix, (maxWidth,maxHeight))
         result_rgb = cv2.cvtColor(self.result_cv, cv2.COLOR_BGR2RGB)
         self.result = ImageTk.PhotoImage(image = Image.fromarray(result_rgb))
         

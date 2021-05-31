@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May 23 05:30:58 2021
-
-@author: Genedy
-"""
-
 from tkinter import Frame, Button, LEFT ,Entry , Text , Label  
 from tkinter import filedialog
 import cv2
@@ -47,7 +40,7 @@ class EditBar(Frame):
     
     def new_button_released(self, event):
         if self.winfo_containing(event.x_root, event.y_root) == self.new_button:
-            if self.master.is_crop_state:
+            if self.master.cropState:
                 self.master.image_viewer.DeactiveCropping()
                 
             filename = filedialog.askopenfilename()
@@ -55,62 +48,62 @@ class EditBar(Frame):
 
             if image is not None:
                 self.master.filename = filename
-                self.master.original_image = image.copy()
-                self.master.processed_image = image.copy()
+                self.master.originalImage = image.copy()
+                self.master.processedImage = image.copy()
                 self.master.image_viewer.show_image()
-                self.master.is_image_selected = True
+                self.master.selectedImage = True
                 
     def save_button_released(self, event):
         if self.winfo_containing(event.x_root, event.y_root) == self.save_button: 
-            if self.master.is_image_selected:
-                if self.master.is_crop_state:
+            if self.master.selectedImage:
+                if self.master.cropState:
                     self.master.image_viewer.DeactiveCropping()
-                saving_image = self.master.processed_image
+                saving_image = self.master.processedImage
                 image_filename = self.master.filename
                 cv2.imwrite(image_filename, saving_image)
                 
     def save_as_button_released(self, event):
         if self.winfo_containing(event.x_root, event.y_root) == self.save_as_button:
-            if self.master.is_image_selected:
-                if self.master.is_crop_state:
+            if self.master.selectedImage:
+                if self.master.cropState:
                     self.master.image_viewer.DeactiveCropping()
                 original = self.master.filename.split('.')[-1]
                 filename = filedialog.asksaveasfilename()
                 filename = filename + "." + original
 
-                save_image = self.master.processed_image
+                save_image = self.master.processedImage
                 cv2.imwrite(filename, save_image)
 
                 self.master.filename = filename
                 
     def flipping_button_released(self, event):
         if self.winfo_containing(event.x_root, event.y_root) == self.flipping_button:
-            if self.master.is_image_selected:
-                if self.master.is_crop_state:
+            if self.master.selectedImage:
+                if self.master.cropState:
                     self.master.image_viewer.DeactiveCropping()
                 else:
                     self.master.image_viewer.flippingImage(self.master.optionBar.getComboxValue())
             
     def rotate_button_released(self, event):
         if self.winfo_containing(event.x_root, event.y_root) == self.rotate_button:
-            if self.master.is_image_selected:
-                if self.master.is_crop_state:
+            if self.master.selectedImage:
+                if self.master.cropState:
                     self.master.image_viewer.DeactiveCropping()
                 else:
                     self.master.image_viewer.RotatingImage(self.master.optionBar.getAngleValue())
     
     def crop_button_released (self, event):
         if self.winfo_containing(event.x_root, event.y_root) == self.crop_button:
-            if self.master.is_image_selected:
-                if self.master.is_crop_state:
+            if self.master.selectedImage:
+                if self.master.cropState:
                     self.master.image_viewer.DeactiveCropping()
                 else:
                     self.master.image_viewer.ActiveCropping()
                     
     def transform_button_released (self, event):
         if self.winfo_containing(event.x_root, event.y_root) == self.transform_button:
-            if self.master.is_image_selected :
-                if self.master.is_crop_state:
+            if self.master.selectedImage :
+                if self.master.cropState:
                     self.master.image_viewer.DeactiveCropping()
                 else:
                     self.master.image_viewer.ActiveTransform()
@@ -119,13 +112,13 @@ class EditBar(Frame):
                     
     def equalizeHist_button_released(self ,event):
         if self.winfo_containing(event.x_root, event.y_root) == self.equalizeHist :
-            if self.master.is_image_selected :
-                if self.master.is_crop_state:
+            if self.master.selectedImage :
+                if self.master.cropState:
                     self.master.image_viewer.DeactiveCropping()
                 else:
                     self.master.image_viewer.EqualizeImage()
                 
                     
     def clear_button_released(self, event):
-         self.master.processed_image = self.master.original_image.copy()
+         self.master.processedImage = self.master.originalImage.copy()
          self.master.image_viewer.show_image()
