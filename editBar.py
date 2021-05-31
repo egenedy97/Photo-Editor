@@ -31,19 +31,13 @@ class EditBar(Frame):
         self.flipping_button.bind("<ButtonRelease>", self.flipping_button_released)
         self.rotate_button.bind("<ButtonRelease>", self.rotate_button_released)
         self.equalizeHist.bind("<ButtonRelease>",self.equalizeHist_button_released)
+        self.transform_button.bind("<ButtonRelease>", self.transform_button_released)
 
-# =============================================================================
-#         self.rotate_button.bind("<ButtonRelease>", self.rotate_button_released)
-#         self.crop_button.bind("<ButtonRelease>", self.crop_button_released)
-#         self.flipping_button.bind("<ButtonRelease>", self.flipping_button_released)
-#         self.transform_button.bind("<ButtonRelease>", self.transform_button_released)
-# =============================================================================
         self.clear_button.bind("<ButtonRelease>", self.clear_button_released)
         self.new_button.pack(side=LEFT)
         self.save_button.pack(side=LEFT)
         self.save_as_button.pack(side=LEFT)
         self.rotate_button.pack(side = LEFT)
-#        self.angle.pack(side=LEFT)
         self.crop_button.pack(side=LEFT)
         self.flipping_button.pack(side=LEFT)
         self.transform_button.pack(side=LEFT)
@@ -112,6 +106,16 @@ class EditBar(Frame):
                     self.master.image_viewer.DeactiveCropping()
                 else:
                     self.master.image_viewer.ActiveCropping()
+                    
+    def transform_button_released (self, event):
+        if self.winfo_containing(event.x_root, event.y_root) == self.transform_button:
+            if self.master.is_image_selected :
+                if self.master.is_crop_state:
+                    self.master.image_viewer.DeactiveCropping()
+                else:
+                    self.master.image_viewer.ActiveTransform()
+                    
+                    
                     
     def equalizeHist_button_released(self ,event):
         if self.winfo_containing(event.x_root, event.y_root) == self.equalizeHist :

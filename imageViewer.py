@@ -9,6 +9,8 @@ from tkinter import Frame, Canvas, CENTER, ROUND
 from PIL import Image, ImageTk
 import cv2
 import imutils 
+import numpy as np
+
 class ImageViewer(Frame):
 
     def __init__(self, master=None):
@@ -23,10 +25,24 @@ class ImageViewer(Frame):
         self.crop_end_y = 0
         self.rectangle_id = 0
         self.ratio = 0
+        self.coord = []
+        self.dot =[]
         self.canvas = Canvas(self, bg="gray", width=1000, height=600)
         self.canvas.place(relx=0.5, rely=0.5, anchor=CENTER)
         
    
+# =============================================================================
+
+#     
+#     def removeCoords(self, event=None):
+#         del self.coord[-1]
+#         self.canvas.delete(self.dot[-1])
+#         del self.dot[-1]
+#     
+#     def Transformer(self): 
+# =============================================================================
+    
+    
     def show_image(self, img=None):
         self.clear_canvas()
 
@@ -58,7 +74,12 @@ class ImageViewer(Frame):
         self.canvas.config(width=new_width, height=new_height)
         self.canvas.create_image(new_width / 2, new_height / 2, anchor=CENTER, image=self.shown_image)
     
-
+# =============================================================================
+#     def ActiveTransforming(self): 
+#         self.canvas.bind("<ButtonPress>" , self.insertCoords)
+# =============================================================================
+        
+    
     def ActiveCropping(self):
         self.canvas.bind("<ButtonPress>", self.start_crop)
         self.canvas.bind("<B1-Motion>", self.crop)
@@ -73,12 +94,12 @@ class ImageViewer(Frame):
         self.canvas.unbind("<ButtonRelease>")
 
         self.master.is_crop_state = False
-        
     
     def start_crop(self, event):
         self.crop_start_x = event.x
         self.crop_start_y = event.y
-
+    
+    
     def crop(self, event):
         if self.rectangle_id:
             self.canvas.delete(self.rectangle_id)
@@ -124,14 +145,70 @@ class ImageViewer(Frame):
 
     def RotatingImage(self , val) :
         self.master.processed_image = imutils.rotate(self.master.processed_image, angle=val)
-#        self.master.processed_image = cv2.rotate(self.master.processed_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
         self.show_image() 
+    
         
     def EqualizeImage(self):
-        clahe  =  cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+#        clahe  =  cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+#        self.master.processed_image = clahe.apply(self.master.processed_image)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
         self.master.processed_image = clahe.apply(self.master.processed_image)
-#        self.master.processed_image = cv2.equalizeHist(src)
+#        self.master.processed_image[:,:,:] = cv2.equalizeHist(self.master.processed_image[:,:,:])
+#        self.master.processed_image = cv2.cvtColor(self.master.processed_image, cv2.COLOR_YUV2BGR)
         self.show_image() 
-
+    
+    def ActiveTransform(self) :
+        self.canvas.bind("<Button 1>",self.insertCoords)
+        self.canvas.bind("<Button 3>",self.removeCoords)
+    
+    def DeactiveTransform(self):
+        self.canvas.bind("<Button 1>",self.insertCoords)
+        self.canvas.bind("<Button 3>",self.removeCoords)
+        
+    def insertCoords(self ,event):
+        self.coord.append([event.x, event.y])
+        r=3
+        self.dot.append(self.canvas.create_oval(event.x - r, event.y - r, event.x + r, event.y + r, fill="#ff0000"))         #print circle
+        if (len(self.coord) == 4):
+            self.Transformer()
+            self.canvas.delete("all")
+            self.canvas.create_image(0,0,image=self.result,anchor="nw")
+            self.master.processed_image = self.result    
+            
+    def removeCoords(self, event=None):
+        del self.coord[-1]
+        self.canvas.delete(self.dot[-1])
+        del self.dot[-1]
+        
+        
+    def Transformer(self):
+        cv2.circle(self.master.processed_image , tuple(self.coord[0]), 5, (0, 0, 255), -1)
+        cv2.circle(self.master.processed_image , tuple(self.coord[1]), 5, (0, 0, 255), -1)
+        cv2.circle(self.master.processed_image , tuple(self.coord[2]), 5, (0, 0, 255), -1)
+        cv2.circle(self.master.processed_image , tuple(self.coord[3]), 5, (0, 0, 255), -1)
+        
+                
+        widthA = np.sqrt(((self.coord[3][0] - self.coord[2][0]) ** 2) + ((self.coord[3][1] - self.coord[2][1]) ** 2))
+        widthB = np.sqrt(((self.coord[1][0] - self.coord[0][0]) ** 2) + ((self.coord[1][1] - self.coord[0][1]) ** 2))
+        maxWidth = max(int(widthA), int(widthB))
+         
+        heightA = np.sqrt(((self.coord[1][0] - self.coord[3][0]) ** 2) + ((self.coord[1][1] - self.coord[3][1]) ** 2))
+        heightB = np.sqrt(((self.coord[0][0] - self.coord[2][0]) ** 2) + ((self.coord[0][1] - self.coord[2][1]) ** 2))
+        maxHeight = max(int(heightA), int(heightB))
+     
+        print(self.coord)
+        
+        pts1 = np.float32(self.coord)    
+        pts2 = np.float32([[0, 0], [maxWidth-1, 0], [0, maxHeight-1], [maxWidth-1, maxHeight-1]])
+        matrix = cv2.getPerspectiveTransform(pts1, pts2)
+        self.result_cv = cv2.warpPerspective(self.master.processed_image, matrix, (maxWidth,maxHeight))
+        result_rgb = cv2.cvtColor(self.result_cv, cv2.COLOR_BGR2RGB)
+        self.result = ImageTk.PhotoImage(image = Image.fromarray(result_rgb))
+        
+            
     def clear_canvas(self):
         self.canvas.delete("all")
+        
+        
+        
+        

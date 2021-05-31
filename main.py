@@ -14,17 +14,13 @@ class Main(tk.Tk):
 
     def __init__(self):
         tk.Tk.__init__(self)
-        self.title("Basic Image Editor")
+        self.title("Assignment1-PhotoEditor")
         self.filename = ""
         self.original_image = None
         self.processed_image = None
         self.is_image_selected = False
         self.is_crop_state = False
         self.is_transform_state = False 
-        
-#        Histogram Equalization
-#        Histogram Matching 
-        
         self.optionBar = OptionBar(master = self)
         self.editBar = EditBar(master = self)
         sep = ttk.Separator(master=self, orient=tk.HORIZONTAL)
